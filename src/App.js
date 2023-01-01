@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import Footer from './components/Footer';
+import { Flex, useColorModeValue } from '@chakra-ui/react';
+
+import HomePage from './Pages/HomePage';
+import LoginPage from './Pages/LoginPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <Flex backgroundColor={useColorModeValue('gray.50', 'gray.800')}>
+        <Flex
+          mx={'auto'}
+          w={['80%', '80%', '80%', '80%', '60%', '60%']}
+          minH={'100vh'}
+          direction={'column'}
+          justifyContent={'space-between'}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <NavBar></NavBar>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/homepage" element={<HomePage />} />
+          </Routes>
+          <Footer></Footer>
+        </Flex>
+      </Flex>
+    </>
   );
 }
 
