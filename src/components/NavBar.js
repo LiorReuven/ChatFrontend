@@ -35,11 +35,11 @@ const NavBar = () => {
         alignItems={'center'}
       >
         <HStack spacing={'12px'}>
-            <Button as={NavLink} to="/" style={({isActive}) => isActive ? activeStyle : undefined}>
-               Home
+            <Button as={NavLink} to="/Login" style={({isActive}) => isActive ? activeStyle : undefined}>
+               Login
             </Button>
-            <Button as={NavLink} to="about" style={({isActive}) => isActive ? activeStyle : undefined}>
-               About
+            <Button as={NavLink} to="/register" style={({isActive}) => isActive ? activeStyle : undefined}>
+               Register
             </Button>
           <ColorModeToggle></ColorModeToggle>
         </HStack>

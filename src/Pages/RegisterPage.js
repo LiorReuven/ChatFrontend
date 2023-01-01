@@ -10,15 +10,15 @@ import {
   Select,
   useColorModeValue,
   FormErrorMessage,
-  Link,
   Text,
+  Link
 } from '@chakra-ui/react';
 import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate,Link as RouterLink } from 'react-router-dom';
 
-const LoginPage = ({socket, setIsLogged}) => {
+const RegisterPage = ({socket, setIsLogged}) => {
   const navigate = useNavigate();
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
@@ -28,12 +28,12 @@ const LoginPage = ({socket, setIsLogged}) => {
   return (
     <Formik
       initialValues={{
-        email: '',
+        userName: '',
         password: '',
-        room: '',
+        password2: '',
       }}
       validationSchema={Yup.object({
-        email: Yup.string().min(6, 'Email must have 6 characters'),
+        userName: Yup.string().min(6, 'Email must have 6 characters'),
         password: Yup.string()
           .min(6, 'Password must have 6 characters')
           .required('Must fill password'),
@@ -71,7 +71,7 @@ const LoginPage = ({socket, setIsLogged}) => {
             minW={'50%'}
           >
             <Heading align={'center'} fontSize={'4xl'}>
-              Login
+              Register
             </Heading>
 
             <Box boxShadow={'lg'} rounded={'xl'} bg={boxBg} p={8}>
@@ -80,8 +80,8 @@ const LoginPage = ({socket, setIsLogged}) => {
                   isInvalid={formik.errors.email && formik.touched.email}
                   id="email"
                 >
-                  <FormLabel>Email address</FormLabel>
-                  <Field as={Input} name="email" type="email" />
+                  <FormLabel>User Name</FormLabel>
+                  <Field as={Input} name="userName" type="name" />
                   <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
                 </FormControl>
 
@@ -95,16 +95,14 @@ const LoginPage = ({socket, setIsLogged}) => {
                 </FormControl>
 
                 <FormControl
-                  isInvalid={formik.errors.room && formik.touched.room}
+                  isInvalid={formik.errors.password2 && formik.touched.password2}
+                  id="password2"
                 >
-                  <FormLabel>Room</FormLabel>
-                  <Field as={Select} name={'room'} placeholder="Select Room">
-                    <option value="Chat Room 1">Chat Room 1</option>
-                    <option value="Chat Room 2">Chat Room 2</option>
-                  </Field>
-                  <FormErrorMessage>{formik.errors.room}</FormErrorMessage>
+                  <FormLabel>Repeat Password</FormLabel>
+                  <Field as={Input} name={'password2'} type="password" />
+                  <FormErrorMessage>{formik.errors.password2}</FormErrorMessage>
                 </FormControl>
-                <Text>Dont have an account? <Link to={'/register'} as={RouterLink} color='blue.500'>register</Link></Text>
+                <Text>Already have an account? <Link to={'/login'} as={RouterLink} color='blue.500'>login</Link></Text>
                 <Button
                   type="submit"
                   isLoading={formik.isSubmitting}
@@ -114,7 +112,7 @@ const LoginPage = ({socket, setIsLogged}) => {
                     bg: 'blue.600',
                   }}
                 >
-                  Sign in
+                  Register
                 </Button>
               </Stack>
             </Box>
@@ -125,4 +123,4 @@ const LoginPage = ({socket, setIsLogged}) => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
