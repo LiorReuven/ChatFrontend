@@ -7,7 +7,6 @@ import {
   Input,
   Stack,
   Button,
-  Select,
   useColorModeValue,
   FormErrorMessage,
   Text,
@@ -17,8 +16,10 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate,Link as RouterLink } from 'react-router-dom';
+import axios from 'axios'
+import { registerUrl } from '../helpers/API';
 
-const RegisterPage = ({socket, setIsLogged}) => {
+const RegisterPage = ({socket}) => {
   const navigate = useNavigate();
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
@@ -28,30 +29,34 @@ const RegisterPage = ({socket, setIsLogged}) => {
   return (
     <Formik
       initialValues={{
-        userName: '',
+        username: '',
+        email:'',
         password: '',
         password2: '',
       }}
       validationSchema={Yup.object({
-        userName: Yup.string().min(6, 'Email must have 6 characters'),
-        password: Yup.string()
-          .min(6, 'Password must have 6 characters')
-          .required('Must fill password'),
-        room: Yup.string()
-          .required('must choose a room')
-          .oneOf(['Chat Room 1', 'Chat Room 2'])
-          .label('Room'),
+        username: Yup.string().min(4,'Username must have 4 chars at minimum').max(8,'Username can be up to 8 chars total'),
+        email:Yup.string().email('Email must be valid').required('Please insert your email'),
+        password: Yup.string().min(6, 'Password must have 6 chars at minimum').max(16,'Password can contain up yo 16 chars').required('Please insert your password'),
+        password2: Yup.string().oneOf([Yup.ref('password'), null],'Passwords must match').required('Please insert your password'),
       })}
-      onSubmit={(values, actions) => {
-        setIsLogged(true)
-        actions.setSubmitting(true)
-        setTimeout(() => {
+      onSubmit={async (values, actions) => {
+      try {
+          const response = await axios.post(registerUrl, {
+            username: values.username,
+            email: values.email,
+            password: values.password
+          })
+          localStorage.setItem('chatUser', JSON.stringify(response.data.user))
+          actions.resetForm(); 
+          navigate('/login')
+        } catch (error) {
+          console.log(error)
+          const data = error.response.data
+          actions.setFieldError(data.field, data.message)
           actions.setSubmitting(false)
-          socket.current.emit('join_room', values.room)
-          actions.resetForm();
-          navigate('/chat',{state:{email: values.email, room: values.room, password:values.password}});
-        }, 5000);
-        
+        }
+               
       }}
     >
       {(formik) => (
@@ -77,11 +82,20 @@ const RegisterPage = ({socket, setIsLogged}) => {
             <Box boxShadow={'lg'} rounded={'xl'} bg={boxBg} p={8}>
               <Stack spacing={5}>
                 <FormControl
+                  isInvalid={formik.errors.username && formik.touched.username}
+                  id="username"
+                >
+                  <FormLabel>User Name</FormLabel>
+                  <Field as={Input} name="username" type="text" />
+                  <FormErrorMessage>{formik.errors.username}</FormErrorMessage>
+                </FormControl>
+
+                <FormControl
                   isInvalid={formik.errors.email && formik.touched.email}
                   id="email"
                 >
-                  <FormLabel>User Name</FormLabel>
-                  <Field as={Input} name="userName" type="name" />
+                  <FormLabel>Email</FormLabel>
+                  <Field as={Input} name="email" type="email" />
                   <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
                 </FormControl>
 
@@ -98,7 +112,7 @@ const RegisterPage = ({socket, setIsLogged}) => {
                   isInvalid={formik.errors.password2 && formik.touched.password2}
                   id="password2"
                 >
-                  <FormLabel>Repeat Password</FormLabel>
+                  <FormLabel>Confirm Password</FormLabel>
                   <Field as={Input} name={'password2'} type="password" />
                   <FormErrorMessage>{formik.errors.password2}</FormErrorMessage>
                 </FormControl>

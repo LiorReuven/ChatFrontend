@@ -17,8 +17,10 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import axios from 'axios';
+import { loginrUrl } from '../helpers/API';
 
-const LoginPage = ({socket, setIsLogged}) => {
+const LoginPage = () => {
   const navigate = useNavigate();
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
@@ -30,27 +32,27 @@ const LoginPage = ({socket, setIsLogged}) => {
       initialValues={{
         email: '',
         password: '',
-        room: '',
       }}
       validationSchema={Yup.object({
-        email: Yup.string().min(6, 'Email must have 6 characters'),
-        password: Yup.string()
-          .min(6, 'Password must have 6 characters')
-          .required('Must fill password'),
-        room: Yup.string()
-          .required('must choose a room')
-          .oneOf(['Chat Room 1', 'Chat Room 2'])
-          .label('Room'),
+        email:Yup.string().email('Email must be valid').required('Please insert your email'),
+        password: Yup.string().min(6, 'Password must have 6 chars at minimum').max(16,'Password can contain up yo 16 chars').required('Please insert your password'),
       })}
-      onSubmit={(values, actions) => {
-        setIsLogged(true)
-        actions.setSubmitting(true)
-        setTimeout(() => {
+      onSubmit={async(values, actions) => {
+        try {
+          const response = await axios.post(loginrUrl, {
+            username: values.username,
+            email: values.email,
+            password: values.password
+          })
+          localStorage.setItem('chatUser', JSON.stringify(response.data.user))
+          actions.resetForm(); 
+          navigate('/login')
+        } catch (error) {
+          console.log(error)
+          const data = error.response.data
+          actions.setFieldError(data.field, data.message)
           actions.setSubmitting(false)
-          socket.current.emit('join_room', values.room)
-          actions.resetForm();
-          navigate('/chat',{state:{email: values.email, room: values.room, password:values.password}});
-        }, 5000);
+        }
         
       }}
     >
@@ -92,17 +94,6 @@ const LoginPage = ({socket, setIsLogged}) => {
                   <FormLabel>Password</FormLabel>
                   <Field as={Input} name={'password'} type="password" />
                   <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
-                </FormControl>
-
-                <FormControl
-                  isInvalid={formik.errors.room && formik.touched.room}
-                >
-                  <FormLabel>Room</FormLabel>
-                  <Field as={Select} name={'room'} placeholder="Select Room">
-                    <option value="Chat Room 1">Chat Room 1</option>
-                    <option value="Chat Room 2">Chat Room 2</option>
-                  </Field>
-                  <FormErrorMessage>{formik.errors.room}</FormErrorMessage>
                 </FormControl>
                 <Text>Dont have an account? <Link to={'/register'} as={RouterLink} color='blue.500'>register</Link></Text>
                 <Button
