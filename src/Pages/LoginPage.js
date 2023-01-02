@@ -7,7 +7,6 @@ import {
   Input,
   Stack,
   Button,
-  Select,
   useColorModeValue,
   FormErrorMessage,
   Link,
@@ -17,7 +16,7 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import axios from 'axios';
+import API from '../helpers/API'
 import { loginrUrl } from '../helpers/API';
 
 const LoginPage = () => {
@@ -39,14 +38,13 @@ const LoginPage = () => {
       })}
       onSubmit={async(values, actions) => {
         try {
-          const response = await axios.post(loginrUrl, {
-            username: values.username,
+          const response = await API.post(loginrUrl, {
             email: values.email,
             password: values.password
           })
-          localStorage.setItem('chatUser', JSON.stringify(response.data.user))
+          localStorage.setItem('chatUser', JSON.stringify(response.data))
           actions.resetForm(); 
-          navigate('/login')
+          navigate('/chat')
         } catch (error) {
           console.log(error)
           const data = error.response.data

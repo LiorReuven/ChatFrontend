@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Flex,
   Input,
@@ -8,70 +8,120 @@ import {
   MenuButton,
   IconButton,
   Menu,
+  Text,
 } from '@chakra-ui/react';
 import { AttachmentIcon, HamburgerIcon } from '@chakra-ui/icons';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import User from '../components/User';
+import API, { addMessageUrl } from '../helpers/API';
+import { getUsersUrl } from '../helpers/API';
+import ChatBlock from '../components/ChatBlock';
 
-const ChatPage = ({ socket }) => {
-  const location = useLocation();
+const ChatPage = () => {
+  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [thisUser, setThisUser] = useState(undefined);
+  const [recipient, setRecipient] = useState(undefined);
 
-  const [message, setMessage] = useState('')
+
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    
-   socket.current.on('incoming_message', (data) => {
-    console.log(data)
-   })
 
-  }, [socket])
-  
-
-  const sendMessOnSubmit = async (e) => {
- 
-    e.preventDefault()
-    
-    if(message === '') return
-
-    const data = {
-      room: location.state.room,
-      email: location.state.email,
-      message: message,
-      time: new Date(Date.now()).getHours() + ':' + new Date(Date.now()).getMinutes()
+    const setThisUserHandler = async () => {
+      const storage = await JSON.parse(localStorage.getItem('chatUser'))
+       setThisUser(storage.user)
     };
 
-    await socket.current.emit('send_message', data)
 
-    setMessage('')
+    if (!localStorage.getItem('chatUser')) {
+      navigate('/login');
+    } else {
+      setThisUserHandler();
+    }
 
-  }
+
+  }, [navigate]);
+
+  useEffect(() => {
+
+    const fetchAllUsers = async () => {
+      try {
+        const response = await API.post(getUsersUrl, {
+          _id: thisUser._id,
+        });
+        setUsers(response.data.users);
+        console.log(response.data.users)
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (thisUser) {
+      fetchAllUsers();
+    }
+
+  
+  }, [thisUser])
 
 
 
+  const sendMessageOnSubmit = async (e) => {
+    e.preventDefault();
+
+    if (message === '' || !recipient){
+      setMessage('');
+      return;
+    } 
+
+    await API.post(addMessageUrl,{
+      from: thisUser?._id,
+      to: recipient?._id,
+      message: message
+    } )
+
+    setMessage('');
+  };
 
   return (
-    <Flex h={'70vh'} overflow={'hidden'} borderBottomRadius={'20px'} borderTopRadius={'20px'}>
+    <Flex
+      h={'70vh'}
+      overflow={'hidden'}
+      borderBottomRadius={'20px'}
+      borderTopRadius={'20px'}
+    >
       <Flex backgroundColor={'teal'} minW={'30%'} direction={'column'}>
-      <Flex
+        <Flex
           alignItems={'center'}
           backgroundColor={'purple'}
           h={'15%'}
           justifyContent={'space-between'}
         ></Flex>
-        <User></User>
-        <User></User>
-        <User></User>
+        {users.map((user) => {
+          return (
+            <User
+              key={user._id}
+              onClick={() => {
+                setRecipient(user);
+              }}
+              user={user}
+            />
+          );
+        })}
       </Flex>
-      <Flex minW={'70%'}  direction={'column'}>
+      <Flex minW={'70%'} direction={'column'}>
         <Flex
           alignItems={'center'}
           backgroundColor={'#417fcc'}
           h={'15%'}
           justifyContent={'space-between'}
         >
-          <Avatar ml={'2rem'} size={'md'}>
-            <AvatarBadge boxSize={'1.25em'} bg={'green.500'} />
-          </Avatar>
+          <Flex>
+            <Avatar ml={'2rem'} size={'md'}>
+              <AvatarBadge boxSize={'1.25em'} bg={'green.500'} />
+            </Avatar>
+            <Text>{recipient?.username}</Text>
+          </Flex>
           <Flex mr={'2rem'}>
             <Menu>
               <MenuButton
@@ -83,10 +133,10 @@ const ChatPage = ({ socket }) => {
             </Menu>
           </Flex>
         </Flex>
-        <Flex backgroundColor={'gray'} h={'70%'}></Flex>
+         <ChatBlock recipient={recipient} thisUser={thisUser}/>
         <Flex
-        as={'form'}
-        onSubmit={sendMessOnSubmit}
+          as={'form'}
+          onSubmit={sendMessageOnSubmit}
           justifyContent={'space-evenly'}
           alignItems={'center'}
           backgroundColor={'gray.500'}
@@ -100,11 +150,11 @@ const ChatPage = ({ socket }) => {
             placeholder="Type message"
             value={message}
             onChange={(e) => {
-              setMessage(e.target.value)
+              setMessage(e.target.value);
             }}
           />
           <AttachmentIcon />
-          <Button type='submit' backgroundColor={'#417fcc'} mx={'1rem'}>
+          <Button type="submit" backgroundColor={'#417fcc'} mx={'1rem'}>
             Send
           </Button>
         </Flex>

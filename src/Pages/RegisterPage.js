@@ -16,7 +16,7 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate,Link as RouterLink } from 'react-router-dom';
-import axios from 'axios'
+import API from '../helpers/API'
 import { registerUrl } from '../helpers/API';
 
 const RegisterPage = ({socket}) => {
@@ -42,12 +42,11 @@ const RegisterPage = ({socket}) => {
       })}
       onSubmit={async (values, actions) => {
       try {
-          const response = await axios.post(registerUrl, {
+          await API.post(registerUrl, {
             username: values.username,
             email: values.email,
             password: values.password
           })
-          localStorage.setItem('chatUser', JSON.stringify(response.data.user))
           actions.resetForm(); 
           navigate('/login')
         } catch (error) {

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import { Flex, useColorModeValue } from '@chakra-ui/react';
@@ -11,20 +11,17 @@ import RegisterPage from './Pages/RegisterPage';
 
 
 function App() {
-const [isLogged, setIsLogged] = useState(false)
-const socket = useRef()
 
+  const navigate = useNavigate()
 
 
 useEffect(() => {
   
-  if(isLogged) {
-    socket.current = io('http://localhost:3001')
-
+  if(localStorage.getItem('chatUser')) {
+    navigate('/chat')
   }
 
-
-}, [isLogged])
+}, [])
 
 
 
@@ -40,9 +37,9 @@ useEffect(() => {
         >
           <NavBar></NavBar>
           <Routes>
-            <Route path="/*" element={<LoginPage setIsLogged={setIsLogged}  socket={socket} />} />
-            <Route path="/register" element={<RegisterPage socket={socket} />} />
-            <Route path="/chat" element={<ChatPage socket={socket} />} />
+            <Route path="/*" element={<LoginPage/>} />
+            <Route path="/register" element={<RegisterPage/>} />
+            <Route path="/chat" element={<ChatPage/>} />
           </Routes>
           <Footer></Footer>
         </Flex>
