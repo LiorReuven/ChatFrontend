@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Flex,
   Input,
@@ -16,6 +16,8 @@ import User from '../components/User';
 import API, { addMessageUrl } from '../helpers/API';
 import { getUsersUrl } from '../helpers/API';
 import ChatBlock from '../components/ChatBlock';
+import io from 'socket.io-client'
+
 
 const ChatPage = () => {
   const navigate = useNavigate();
@@ -24,13 +26,15 @@ const ChatPage = () => {
   const [recipient, setRecipient] = useState(undefined);
 
 
-  const [message, setMessage] = useState('');
+  const socket = io(process.env.REACT_APP_BASE_URL)
+
 
   useEffect(() => {
 
     const setThisUserHandler = async () => {
       const storage = await JSON.parse(localStorage.getItem('chatUser'))
-       setThisUser(storage.user)
+      setThisUser(storage.user)
+
     };
 
 
@@ -45,20 +49,31 @@ const ChatPage = () => {
 
   useEffect(() => {
 
-    const fetchAllUsers = async () => {
+   
+
+    const fetchAllUsers = async (data) => {
       try {
         const response = await API.post(getUsersUrl, {
-          _id: thisUser._id,
+          data:data
         });
+           
         setUsers(response.data.users);
-        console.log(response.data.users)
       } catch (error) {
         console.log(error);
       }
     };
 
     if (thisUser) {
-      fetchAllUsers();
+      socket.on('get_online_users', (data) => {
+        console.log(data)
+        fetchAllUsers(data)
+      }) 
+      socket.emit('add_user', thisUser._id)
+    }
+
+    return () => {
+      socket.off('get_online_users')
+      socket.off('add_user')
     }
 
   
@@ -66,22 +81,9 @@ const ChatPage = () => {
 
 
 
-  const sendMessageOnSubmit = async (e) => {
-    e.preventDefault();
 
-    if (message === '' || !recipient){
-      setMessage('');
-      return;
-    } 
 
-    await API.post(addMessageUrl,{
-      from: thisUser?._id,
-      to: recipient?._id,
-      message: message
-    } )
-
-    setMessage('');
-  };
+  
 
   return (
     <Flex
@@ -133,31 +135,7 @@ const ChatPage = () => {
             </Menu>
           </Flex>
         </Flex>
-         <ChatBlock recipient={recipient} thisUser={thisUser}/>
-        <Flex
-          as={'form'}
-          onSubmit={sendMessageOnSubmit}
-          justifyContent={'space-evenly'}
-          alignItems={'center'}
-          backgroundColor={'gray.500'}
-          h={'15%'}
-        >
-          <Input
-            w={'70%'}
-            mx={'3rem'}
-            h={'100%'}
-            variant={'unstyled'}
-            placeholder="Type message"
-            value={message}
-            onChange={(e) => {
-              setMessage(e.target.value);
-            }}
-          />
-          <AttachmentIcon />
-          <Button type="submit" backgroundColor={'#417fcc'} mx={'1rem'}>
-            Send
-          </Button>
-        </Flex>
+         <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser}/>
       </Flex>
     </Flex>
   );
