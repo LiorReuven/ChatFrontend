@@ -3,9 +3,9 @@ import React from 'react';
 
 const User = ({user, onClick}) => {
   return (
-    <Flex onClick={onClick} p={4}>
+    <Flex _hover={{backgroundColor: 'gray.400'}} cursor={'pointer'} onClick={onClick} p={2}>
       <HStack align={'center'} w={'100%'}  spacing={10}>
-      <Avatar size={'md'}></Avatar>
+      <Avatar boxSize={10}></Avatar>
       <VStack>
       <Text fontWeight={'semibold'} fontSize={'xs'}>
       {user.username}

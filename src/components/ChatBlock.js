@@ -1,6 +1,6 @@
-import { AttachmentIcon } from '@chakra-ui/icons'
-import { Button, Flex, Input, Text } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import { AttachmentIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { Avatar, AvatarBadge, Box, Button, Flex, IconButton, Input, Menu, MenuButton, Text } from '@chakra-ui/react'
+import React, { useEffect, useRef, useState } from 'react'
 import API, { addMessageUrl, getMessagesUrl } from '../helpers/API'
 import Message from './Message'
 
@@ -9,6 +9,7 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [message, setMessage] = useState('');
+  const scrollRef = useRef()
 
   useEffect(() => {
     
@@ -44,25 +45,27 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
       return;
     } 
 
-    await API.post(addMessageUrl,{
+    const response = await API.post(addMessageUrl,{
       from: thisUser?._id,
       to: recipient?._id,
       message: message
     } )
+
     await socket.current.emit('send_message',{
       from: thisUser?._id,
       to:recipient?._id,
-      message: message
+      message: message,
+      createdAt:response.data.createdMessage.createdAt
     });
-    setMessages((prev) => [...prev, {fromMe: true, message: message}])
+    setMessages((prev) => [...prev, {fromMe: true, text: message, createdAt:response.data.createdMessage.createdAt}])
     setMessage('');
   };
 
 
   useEffect(() => {
-    console.log(socket)
-      socket?.current.on('recieve-message', (message) => {
-        setMessages((prev) => [...prev, {fromMe: false, message: message}])
+      socket?.current.on('recieve-message', (data) => {
+        console.log(data)
+        setMessages((prev) => [...prev, {fromMe: false, text: data.text, createdAt:data.createdAt}])
         console.log('trigger')
       })
 
@@ -71,6 +74,12 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
     // }
  
   },[])
+
+  useEffect(() => {
+    console.log(scrollRef)
+    scrollRef?.current?.scrollIntoView({behavior:'smooth'})
+  }, [messages])
+  
   
   
   
@@ -78,12 +87,36 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
 
   return (
     <>
-    <Flex overflow={'scroll'} direction={'column'} backgroundColor={'gray'} h={'70%'}>
+    <Flex
+          alignItems={'center'}
+          backgroundColor={'gray.700'}
+          h={'12%'}
+          justifyContent={'space-between'}
+        >
+          <Flex align={'center'}>
+            <Avatar ml={'2rem'} boxSize={10}>
+            </Avatar>
+            <Text  ml={'1rem'}>{recipient?.username}</Text>
+          </Flex>
+          <Flex mr={'2rem'}>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label="options"
+                icon={<HamburgerIcon />}
+                variant={'outline'}
+              />
+            </Menu>
+          </Flex>
+        </Flex>
+    <Flex overflowY={'scroll'}  direction={'column'} backgroundColor={'gray.300'} h={'78%'}>
 
           {recipient && !isLoading ?
           messages?.map((message, index) => {
             return (
-             <Message key={index} message={message}/>
+              <Box key={index} ref={scrollRef}>
+             <Message  message={message}/>
+             </Box>
             ) 
           })
           : <Text>Welcome</Text>}
@@ -95,8 +128,8 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
     onSubmit={sendMessageOnSubmit}
     justifyContent={'space-evenly'}
     alignItems={'center'}
-    backgroundColor={'gray.500'}
-    h={'15%'}
+    backgroundColor={'gray.700'}
+    h={'10%'}
   >
     <Input
       w={'70%'}
@@ -108,9 +141,13 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
       onChange={(e) => {
         setMessage(e.target.value);
       }}
+      color={'black'}
+      backgroundColor={'gray.400'}
+      px={6}
+      py={2}
     />
     <AttachmentIcon />
-    <Button type="submit" backgroundColor={'#417fcc'} mx={'1rem'}>
+    <Button type="submit" backgroundColor={'blue.800'} mx={'1rem'}>
       Send
     </Button>
   </Flex>

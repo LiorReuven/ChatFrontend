@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Flex,
-  Input,
-  Button,
   Avatar,
   AvatarBadge,
   MenuButton,
@@ -10,10 +8,10 @@ import {
   Menu,
   Text,
 } from '@chakra-ui/react';
-import { AttachmentIcon, HamburgerIcon } from '@chakra-ui/icons';
+import {  HamburgerIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import User from '../components/User';
-import API, { addMessageUrl } from '../helpers/API';
+import API from '../helpers/API';
 import { getUsersUrl } from '../helpers/API';
 import ChatBlock from '../components/ChatBlock';
 import io from 'socket.io-client'
@@ -96,13 +94,15 @@ const ChatPage = () => {
       borderBottomRadius={'20px'}
       borderTopRadius={'20px'}
     >
-      <Flex backgroundColor={'teal'} minW={'30%'} direction={'column'}>
+      <Flex backgroundColor={'blue.800'} minW={'25%'} direction={'column'}>
         <Flex
           alignItems={'center'}
-          backgroundColor={'purple'}
+          backgroundColor={'blue.800'}
           h={'15%'}
-          justifyContent={'space-between'}
-        ></Flex>
+          justifyContent={'center'}
+        >
+          <Avatar size={'md'}></Avatar>
+        </Flex>
         {users.map((user) => {
           return (
             <User
@@ -115,30 +115,7 @@ const ChatPage = () => {
           );
         })}
       </Flex>
-      <Flex minW={'70%'} direction={'column'}>
-        <Flex
-          alignItems={'center'}
-          backgroundColor={'#417fcc'}
-          h={'15%'}
-          justifyContent={'space-between'}
-        >
-          <Flex>
-            <Avatar ml={'2rem'} size={'md'}>
-              <AvatarBadge boxSize={'1.25em'} bg={'green.500'} />
-            </Avatar>
-            <Text>{recipient?.username}</Text>
-          </Flex>
-          <Flex mr={'2rem'}>
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                aria-label="options"
-                icon={<HamburgerIcon />}
-                variant={'outline'}
-              />
-            </Menu>
-          </Flex>
-        </Flex>
+      <Flex minW={'75%'} direction={'column'}>
          <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser}/>
       </Flex>
     </Flex>
