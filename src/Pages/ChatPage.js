@@ -19,22 +19,25 @@ import ChatBlock from '../components/ChatBlock';
 import io from 'socket.io-client'
 
 
+
 const ChatPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [thisUser, setThisUser] = useState(undefined);
   const [recipient, setRecipient] = useState(undefined);
+  const socket = useRef()
+  const [loading, setLoading] = useState(true)
 
 
-  const socket = io(process.env.REACT_APP_BASE_URL)
+  
 
 
   useEffect(() => {
 
+
     const setThisUserHandler = async () => {
       const storage = await JSON.parse(localStorage.getItem('chatUser'))
       setThisUser(storage.user)
-
     };
 
 
@@ -45,7 +48,7 @@ const ChatPage = () => {
     }
 
 
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
 
@@ -54,9 +57,10 @@ const ChatPage = () => {
     const fetchAllUsers = async (data) => {
       try {
         const response = await API.post(getUsersUrl, {
-          data:data
+          data:data,
+          _id:thisUser._id
         });
-           
+           console.log(response.data.users)
         setUsers(response.data.users);
       } catch (error) {
         console.log(error);
@@ -64,20 +68,18 @@ const ChatPage = () => {
     };
 
     if (thisUser) {
-      socket.on('get_online_users', (data) => {
-        console.log(data)
+       socket.current = io(process.env.REACT_APP_BASE_URL)
+       socket.current.emit('add_user', thisUser._id)
+       socket.current.on('get_online_users', (data) => {
         fetchAllUsers(data)
       }) 
-      socket.emit('add_user', thisUser._id)
-    }
-
-    return () => {
-      socket.off('get_online_users')
-      socket.off('add_user')
+      setLoading(false)
     }
 
   
   }, [thisUser])
+
+ 
 
 
 
@@ -86,6 +88,8 @@ const ChatPage = () => {
   
 
   return (
+    <>
+    { !loading ?
     <Flex
       h={'70vh'}
       overflow={'hidden'}
@@ -138,6 +142,9 @@ const ChatPage = () => {
          <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser}/>
       </Flex>
     </Flex>
+     : <Text>loading</Text> 
+    }
+    </>
   );
 };
 

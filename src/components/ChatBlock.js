@@ -49,7 +49,7 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
       to: recipient?._id,
       message: message
     } )
-    await socket.emit('send_message',{
+    await socket.current.emit('send_message',{
       from: thisUser?._id,
       to:recipient?._id,
       message: message
@@ -60,14 +60,15 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
 
 
   useEffect(() => {
-    socket?.on('recieve-message', (message) => {
-      setMessages((prev) => [...prev, {fromMe: false, message: message}])
-      console.log('trigger')
-    })
+    console.log(socket)
+      socket?.current.on('recieve-message', (message) => {
+        setMessages((prev) => [...prev, {fromMe: false, message: message}])
+        console.log('trigger')
+      })
 
-    return () => {
-      socket.off('recieve_message')
-    }
+    // return () => {
+    //   socket.off('recieve_message')
+    // }
  
   },[])
   
