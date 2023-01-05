@@ -3,7 +3,7 @@ import React from 'react';
 
 const User = ({user, onClick}) => {
   return (
-    <Flex _hover={{backgroundColor: 'gray.400'}} cursor={'pointer'} onClick={onClick} p={2}>
+    <Flex  _hover={{backgroundColor: 'blue.900'}} cursor={'pointer'} onClick={onClick} p={2}>
       <HStack align={'center'} w={'100%'}  spacing={10}>
       <Avatar boxSize={10}></Avatar>
       <VStack>

@@ -10,19 +10,68 @@ import {
   useColorModeValue,
   FormErrorMessage,
   Text,
-  Link
+  Link,
+  Icon,
+  Avatar
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate,Link as RouterLink } from 'react-router-dom';
 import API from '../helpers/API'
 import { registerUrl } from '../helpers/API';
 
-const RegisterPage = ({socket}) => {
+
+
+const RegisterPage = () => {
   const navigate = useNavigate();
+  const [imagePreview, setImagePreview] = useState(null);
+  const [image, setImage] = useState('');
+
+  
+
+
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
+
+
+
+  function validateImage(e) {
+    const file = e.target.files[0];
+    if (file?.size >= 1048576) {
+        return alert("Max file size is 1mb");
+    } else {
+      if (file) {
+        setImage(file);
+        setImagePreview(URL.createObjectURL(file));
+      }   
+    }
+}
+
+async function uploadImage(image) {
+  const data = new FormData();
+  data.append("file", image);
+  data.append("upload_preset", process.env.REACT_APP_PRESET_NAME);
+  try {
+    if(image) {
+      let response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`, {
+        method: "post",
+        body: data,
+    });
+      
+      const cloudData = await response.json();
+      return cloudData;
+    } else {
+
+
+      return
+    }
+      
+  } catch (error) {
+      console.log(error);
+  }
+}
+
 
 
 
@@ -42,10 +91,12 @@ const RegisterPage = ({socket}) => {
       })}
       onSubmit={async (values, actions) => {
       try {
+          const cloudData = await uploadImage(image)
           await API.post(registerUrl, {
             username: values.username,
             email: values.email,
-            password: values.password
+            password: values.password,
+            avatarImage: cloudData
           })
           actions.resetForm(); 
           navigate('/login')
@@ -115,6 +166,12 @@ const RegisterPage = ({socket}) => {
                   <Field as={Input} name={'password2'} type="password" />
                   <FormErrorMessage>{formik.errors.password2}</FormErrorMessage>
                 </FormControl>
+                <Flex justifyContent={'center'}>
+                <label  style={{width: 'fit-content', textAlign: 'center'}} htmlFor='upload'>
+                  <Avatar src={imagePreview} boxSize={16} justifySelf={'center'} type={'file'}/>
+                  <Input id='upload' display={'none'} type={'file'} accept={"image/png, image/jpeg"} onChange={validateImage} />
+                </label>
+                </Flex>
                 <Text>Already have an account? <Link to={'/login'} as={RouterLink} color='blue.500'>login</Link></Text>
                 <Button
                   type="submit"

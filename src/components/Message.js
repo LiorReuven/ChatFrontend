@@ -11,7 +11,7 @@ const Message = ({ message }) => {
   return (
     <>
       {message.fromMe ? (
-        <Flex marginY={'1.3rem'} ml={'1rem'}>
+        <Flex marginY={'0.5rem'} ml={'1rem'}>
           <Avatar size={'sm'} />
           <Flex ml={'10px'} direction={'column'}>
             <Container
@@ -30,7 +30,7 @@ const Message = ({ message }) => {
           </Flex>
         </Flex>
       ) : (
-        <Flex marginY={'1.3rem'} mr={'1rem'} justifyContent={'flex-end'}>
+        <Flex marginY={'0.5rem'} mr={'1rem'} justifyContent={'flex-end'}>
           <Flex alignItems={'flex-end'} mr={'10px'} direction={'column'}>
             <Container
               m={'0'}
