@@ -11,7 +11,6 @@ import {
   FormErrorMessage,
   Text,
   Link,
-  Icon,
   Avatar
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
@@ -166,9 +165,11 @@ async function uploadImage(image) {
                   <Field as={Input} name={'password2'} type="password" />
                   <FormErrorMessage>{formik.errors.password2}</FormErrorMessage>
                 </FormControl>
-                <Flex justifyContent={'center'}>
+                
+                <Flex  alignItems={'center'}>
+                <Text fontWeight={'semibold'} pr={['1.5rem','1.5rem','1.5rem','3rem','3rem','3rem']}>Click to add:</Text>
                 <label  style={{width: 'fit-content', textAlign: 'center'}} htmlFor='upload'>
-                  <Avatar src={imagePreview} boxSize={16} justifySelf={'center'} type={'file'}/>
+                  <Avatar cursor={'pointer'}  src={imagePreview} boxSize={16} justifySelf={'center'} type={'file'}/>
                   <Input id='upload' display={'none'} type={'file'} accept={"image/png, image/jpeg"} onChange={validateImage} />
                 </label>
                 </Flex>

@@ -2,9 +2,7 @@ import {
   Avatar,
   Divider,
   Flex,
-  HStack,
   Text,
-  VStack,
   Icon,
 } from '@chakra-ui/react';
 import React from 'react';

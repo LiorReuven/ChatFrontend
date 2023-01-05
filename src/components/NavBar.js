@@ -12,10 +12,24 @@ import { BsSun, BsMoonStarsFill } from 'react-icons/bs';
 import React, { useState } from 'react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { NavLink} from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { authActions } from '../store/authSlice';
 
 const NavBar = () => {
   const colorModeValue = useColorModeValue('#edeeee', '#1b202c');
 
+  const auth = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+
+  const onLogoutHandler = () => {
+    if (!auth.isAuth && !auth.authData) {
+      return
+    }     
+    dispatch(authActions.logout())
+
+    
+  }
 
   let activeStyle = {
     background: '#417fcc',
@@ -35,16 +49,25 @@ const NavBar = () => {
         alignItems={'center'}
       >
         <HStack spacing={'12px'}>
-            <Button as={NavLink} to="/Login" style={({isActive}) => isActive ? activeStyle : undefined}>
+          <>
+          {!auth.isAuth ?
+          <>
+           <Button as={NavLink} to="/login" style={({isActive}) => isActive ? activeStyle : undefined}>
                Login
             </Button>
             <Button as={NavLink} to="/register" style={({isActive}) => isActive ? activeStyle : undefined}>
                Register
             </Button>
+            </>
+            :
+            <Button backgroundColor={'red.400'} onClick={onLogoutHandler} as={NavLink} to="/login" style={({isActive}) => isActive ? activeStyle : undefined}>
+               Logout
+            </Button>}
+            </>
           <ColorModeToggle></ColorModeToggle>
         </HStack>
       </Flex>
-      <MobileNav />
+      <MobileNav onLogoutHandler={onLogoutHandler} auth={auth}/>
     </>
   );
 };
@@ -64,10 +87,11 @@ function ColorModeToggle(props) {
   );
 }
 
-function MobileNav(params) {
+function MobileNav({auth, onLogoutHandler}) {
   const [isOpen, setIsOpen] = useState(false)
   const colorModeValue = useColorModeValue('#edeeee', '#1b202c');
   const buttonBackground = useColorModeValue('gray.300', 'whiteAlpha.200');
+
 
 
   let activeStyle = {
@@ -112,12 +136,26 @@ function MobileNav(params) {
           pt={'7rem'}
         >
           <VStack spacing={'70px'}>
-              <Button backgroundColor={buttonBackground} w={'150px'} onClick={() => {setIsOpen(false)}} as={NavLink} to="/" style={({isActive}) => isActive ? activeStyle : undefined}>
-               Home
+            <>
+            {!auth.isAuth ? 
+            <>
+            <Button backgroundColor={buttonBackground} w={'150px'} onClick={() => {setIsOpen(false)}} as={NavLink} to="/login" style={({isActive}) => isActive ? activeStyle : undefined}>
+               Login
               </Button>
-              <Button backgroundColor={buttonBackground} w={'150px'} onClick={() => {setIsOpen(false)}} as={NavLink} to="about" style={({isActive}) => isActive ? activeStyle : undefined}>
-                About
+              <Button backgroundColor={buttonBackground} w={'150px'} onClick={() => {setIsOpen(false)}} as={NavLink} to="/register" style={({isActive}) => isActive ? activeStyle : undefined}>
+                Register
+              </Button> 
+              </>
+              :
+              <Button backgroundColor={'red.400'}  w={'150px'} onClick={() => {
+                onLogoutHandler()
+                setIsOpen(false)
+                }} as={NavLink} to="/login" style={({isActive}) => isActive ? activeStyle : undefined}>
+                Logout
               </Button>
+              }
+              </>
+              
           </VStack>
         </Flex>
         </Slide>

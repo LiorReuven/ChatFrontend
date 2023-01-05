@@ -1,8 +1,9 @@
 import React, { useEffect} from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import { Flex, useColorModeValue } from '@chakra-ui/react';
+import { useSelector } from 'react-redux';
 
 import ChatPage from './Pages/ChatPage';
 import LoginPage from './Pages/LoginPage';
@@ -13,6 +14,9 @@ function App() {
 
   const navigate = useNavigate()
 
+  const auth = useSelector((state) => state.auth)
+
+
 
 useEffect(() => {
   
@@ -21,6 +25,11 @@ useEffect(() => {
   }
 
 }, [])
+
+
+
+if (process.env.NODE_ENV === "production")
+  console.log = function no_console() {};
 
 
 
@@ -36,9 +45,10 @@ useEffect(() => {
         >
           <NavBar></NavBar>
           <Routes>
-            <Route path="/*" element={<LoginPage/>} />
-            <Route path="/register" element={<RegisterPage/>} />
-            <Route path="/chat" element={<ChatPage/>} />
+            <Route path="/*" element={!auth.isAuth || !auth.authData ?<Navigate replace to='/login'/> : <Navigate replace to='/chat'/>}  />
+            {!auth.isAuth && !auth.authData &&<Route path="/login" element={<LoginPage/>} />}
+            {!auth.isAuth && !auth.authData &&<Route path="/register" element={<RegisterPage/>} />}
+            {auth.isAuth && auth.authData && <Route path="/chat" element={<ChatPage/>} />}
           </Routes>
           <Footer></Footer>
         </Flex>

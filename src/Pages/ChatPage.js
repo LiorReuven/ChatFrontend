@@ -4,10 +4,9 @@ import {
   Avatar,
   Text,
   Divider,
-  DarkMode,
-  Circle,
   Box
 } from '@chakra-ui/react';
+import BarLoader from 'react-spinners/BarLoader'
 import { useNavigate } from 'react-router-dom';
 import User from '../components/User';
 import API from '../helpers/API';
@@ -98,7 +97,8 @@ const ChatPage = () => {
           h={'15%'}
           justifyContent={'center'}
         >
-          <Box backgroundColor={'green.400'} borderRadius={'full'} p={'3px'}>
+          
+          <Box backgroundColor={'green.400'} borderRadius={'full'} p={'4px'}>
           <Avatar  src={thisUser?.avatarImage} size={'md'}>
           </Avatar>
           </Box>
@@ -112,10 +112,7 @@ const ChatPage = () => {
               key={user._id}
               onClick={() => {
                 setRecipient(user);
-                console.log(unRead, recipient?._id)
-
                  const indexOfRec = unRead.indexOf(recipient?._id) 
-                 console.log(indexOfRec)
                  if (indexOfRec !== -1) {
                   const array = [...unRead]
                   array.splice(indexOfRec, 1)
@@ -133,7 +130,9 @@ const ChatPage = () => {
          <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser} setUnRead={setUnRead}/>
       </Flex>
     </Flex>
-     : <Text>loading</Text> 
+     : <Flex justifyContent={'center'} alignItems={'center'}>
+      <BarLoader color="rgb(65, 127, 204)" />
+     </Flex>
     }
     </>
   );

@@ -1,4 +1,4 @@
-import { Avatar,  Box, Button, DarkMode, Flex, Input,  Text } from '@chakra-ui/react'
+import { Avatar,  Box, Button, DarkMode, Flex, Heading, Input,  Text } from '@chakra-ui/react'
 import React, { useEffect, useRef, useState } from 'react'
 import API, { addMessageUrl, getMessagesUrl } from '../helpers/API'
 import Message from './Message'
@@ -70,7 +70,6 @@ const ChatBlock = ({recipient, thisUser, socket, setUnRead}) => {
   useEffect(() => {
       socket?.current.on('recieve-message', (data) => {
         setMessages((prev) => [...prev, {fromMe: false, text: data.text, createdAt:data.createdAt, to:data.to, from:data.from}])
-          console.log(recipient?._id)
           setUnRead( (prev) => {
             const index = prev.indexOf(data.from)
             if (index !== -1) {
@@ -105,11 +104,13 @@ const ChatBlock = ({recipient, thisUser, socket, setUnRead}) => {
           h={'12%'}
           justifyContent={'space-between'}
         >
-          <Flex align={'center'}>
+          {recipient &&
+            <Flex align={'center'}>
             <Avatar src={recipient?.avatarImage} ml={'2rem'} boxSize={10}>
             </Avatar>
             <Text color={'white'} fontWeight={'semibold'}  ml={'1rem'}>{recipient?.username}</Text>
           </Flex>
+          } 
         </Flex>
     <Flex css={{
     '&::-webkit-scrollbar': {
@@ -129,7 +130,14 @@ const ChatBlock = ({recipient, thisUser, socket, setUnRead}) => {
              </Box>
             ) 
           })
-          : <Text>Welcome</Text>}
+          :
+          <>
+          <Flex h={'100%'} direction={'column'} justifyContent={'center'} alignItems={'center'}>
+           <Heading color={'blue.800'}>Welcome</Heading>
+           <Heading color={'blue.800'} fontWeight={'semibold'}>Select someone to start chatting</Heading>
+           </Flex>
+           </>
+           }
 
 
     </Flex>

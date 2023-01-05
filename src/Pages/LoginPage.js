@@ -16,11 +16,17 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import API from '../helpers/API'
-import { loginrUrl } from '../helpers/API';
+// import API from '../helpers/API'
+// import { loginrUrl } from '../helpers/API';
+import {useDispatch} from 'react-redux'
+import { login } from '../store/authThunk';
+import { unwrapResult } from '@reduxjs/toolkit'
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
+
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
 
@@ -38,18 +44,27 @@ const LoginPage = () => {
       })}
       onSubmit={async(values, actions) => {
         try {
-          const response = await API.post(loginrUrl, {
-            email: values.email,
-            password: values.password
+          // const response = await API.post(loginrUrl, {
+          //   email: values.email,
+          //   password: values.password
+          // })
+          // localStorage.setItem('chatUser', JSON.stringify(response.data))
+          dispatch(login({email:values.email, password:values.password}))
+          .then(unwrapResult)
+          .then((result) => {
+            if (result.token) {
+              actions.resetForm(); 
+              navigate('/chat')
+            } else {
+              actions.setFieldError(result.field, result.message)
+              actions.setSubmitting(false)
+            }
           })
-          localStorage.setItem('chatUser', JSON.stringify(response.data))
-          actions.resetForm(); 
-          navigate('/chat')
         } catch (error) {
           console.log(error)
-          const data = error.response.data
-          actions.setFieldError(data.field, data.message)
-          actions.setSubmitting(false)
+          // const data = error.response.data
+          // actions.setFieldError(data.field, data.message)
+          // actions.setSubmitting(false)
         }
         
       }}
