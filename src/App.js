@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useEffect} from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
@@ -6,7 +6,6 @@ import { Flex, useColorModeValue } from '@chakra-ui/react';
 
 import ChatPage from './Pages/ChatPage';
 import LoginPage from './Pages/LoginPage';
-import {io} from 'socket.io-client';
 import RegisterPage from './Pages/RegisterPage';
 
 

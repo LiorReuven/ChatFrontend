@@ -2,17 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   Flex,
   Avatar,
-  AvatarBadge,
-  MenuButton,
-  IconButton,
-  Menu,
   Text,
-  Icon,
-  Input,
-  Box,
-  FormControl
+  Divider,
+  DarkMode,
+  Circle,
+  Box
 } from '@chakra-ui/react';
-import {  HamburgerIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import User from '../components/User';
 import API from '../helpers/API';
@@ -29,6 +24,7 @@ const ChatPage = () => {
   const [recipient, setRecipient] = useState(undefined);
   const socket = useRef()
   const [loading, setLoading] = useState(true)
+  const [unRead, setUnRead] = useState([])
 
 
   
@@ -62,7 +58,6 @@ const ChatPage = () => {
           data:data,
           _id:thisUser._id
         });
-           console.log(response.data.users)
         setUsers(response.data.users);
       } catch (error) {
         console.log(error);
@@ -103,24 +98,39 @@ const ChatPage = () => {
           h={'15%'}
           justifyContent={'center'}
         >
-          
-          <Avatar size={'md'}>
+          <Box backgroundColor={'green.400'} borderRadius={'full'} p={'3px'}>
+          <Avatar  src={thisUser?.avatarImage} size={'md'}>
           </Avatar>
+          </Box>
+          <Text color={'white'} noOfLines={1} maxW={'50%'} ml={'1rem'} fontWeight={'semibold'}>{thisUser?.username}</Text>
+
         </Flex>
+        <Divider/>
         {users.map((user) => {
           return (
             <User
               key={user._id}
               onClick={() => {
                 setRecipient(user);
+                console.log(unRead, recipient?._id)
+
+                 const indexOfRec = unRead.indexOf(recipient?._id) 
+                 console.log(indexOfRec)
+                 if (indexOfRec !== -1) {
+                  const array = [...unRead]
+                  array.splice(indexOfRec, 1)
+                  setUnRead([...array])
+                 }  
               }}
               user={user}
+              unRead={unRead}
+              recipient={recipient}
             />
           );
         })}
       </Flex>
       <Flex minW={'75%'} direction={'column'}>
-         <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser}/>
+         <ChatBlock socket={socket} recipient={recipient} thisUser={thisUser} setUnRead={setUnRead}/>
       </Flex>
     </Flex>
      : <Text>loading</Text> 

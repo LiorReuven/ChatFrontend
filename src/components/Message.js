@@ -2,17 +2,16 @@ import { Avatar, Container, Flex, Text } from '@chakra-ui/react';
 import React from 'react';
 import moment from 'moment-timezone'
 
-const Message = ({ message }) => {
-  console.log(message.createdAt);
+const Message = ({ message, recipient, thisUser, scrollRef }) => {
 
-  const date = moment(message.createdAt).tz('Asia/Jerusalem').format('LT'); 
+  const date = moment(message.createdAt).tz('Asia/Jerusalem').format('HH:mm A'); 
 
 
   return (
     <>
-      {message.fromMe ? (
-        <Flex marginY={'0.5rem'} ml={'1rem'}>
-          <Avatar size={'sm'} />
+      {!message.fromMe && message.from === recipient._id && message.to === thisUser._id ? (
+        <Flex ref={scrollRef} marginY={'0.5rem'} ml={'1rem'}>
+          <Avatar src={recipient?.avatarImage} size={'sm'} />
           <Flex ml={'10px'} direction={'column'}>
             <Container
               m={'0'}
@@ -29,8 +28,8 @@ const Message = ({ message }) => {
             <Text p={'2px'} fontSize={'xs'} color={'black'}>{date}</Text>
           </Flex>
         </Flex>
-      ) : (
-        <Flex marginY={'0.5rem'} mr={'1rem'} justifyContent={'flex-end'}>
+      ) : message.fromMe && message.to === recipient._id && message.from === thisUser._id ? (
+        <Flex ref={scrollRef} marginY={'0.5rem'} mr={'1rem'} justifyContent={'flex-end'}>
           <Flex alignItems={'flex-end'} mr={'10px'} direction={'column'}>
             <Container
               m={'0'}
@@ -46,9 +45,9 @@ const Message = ({ message }) => {
             </Container>
             <Text p={'2px'} fontSize={'xs'} color={'black'}>{date}</Text>
           </Flex>
-          <Avatar size={'sm'} />
+          <Avatar src={thisUser?.avatarImage} size={'sm'} />
         </Flex>
-      )}
+      ) : <></>}
     </>
   );
 };

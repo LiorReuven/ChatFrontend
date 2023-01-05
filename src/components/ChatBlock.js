@@ -1,10 +1,9 @@
-import { AttachmentIcon, HamburgerIcon } from '@chakra-ui/icons'
-import { Avatar, AvatarBadge, Box, Button, Flex, IconButton, Input, Menu, MenuButton, Text } from '@chakra-ui/react'
+import { Avatar,  Box, Button, DarkMode, Flex, Input,  Text } from '@chakra-ui/react'
 import React, { useEffect, useRef, useState } from 'react'
 import API, { addMessageUrl, getMessagesUrl } from '../helpers/API'
 import Message from './Message'
 
-const ChatBlock = ({recipient, thisUser, socket}) => {
+const ChatBlock = ({recipient, thisUser, socket, setUnRead}) => {
 
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -57,16 +56,30 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
       message: message,
       createdAt:response.data.createdMessage.createdAt
     });
-    setMessages((prev) => [...prev, {fromMe: true, text: message, createdAt:response.data.createdMessage.createdAt}])
+    setMessages((prev) => [...prev, {
+      fromMe: true,
+       text: message,
+        createdAt:response.data.createdMessage.createdAt,
+        to:recipient?._id ,
+        from: thisUser?._id}
+      ])
     setMessage('');
   };
 
 
   useEffect(() => {
       socket?.current.on('recieve-message', (data) => {
-        console.log(data)
-        setMessages((prev) => [...prev, {fromMe: false, text: data.text, createdAt:data.createdAt}])
-        console.log('trigger')
+        setMessages((prev) => [...prev, {fromMe: false, text: data.text, createdAt:data.createdAt, to:data.to, from:data.from}])
+          console.log(recipient?._id)
+          setUnRead( (prev) => {
+            const index = prev.indexOf(data.from)
+            if (index !== -1) {
+              prev.splice(index,1,data.from)
+              return [...prev]
+            } else {
+              return [...prev, data.from]
+            }
+          })
       })
 
     // return () => {
@@ -76,7 +89,6 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
   },[])
 
   useEffect(() => {
-    console.log(scrollRef)
     scrollRef?.current?.scrollIntoView({behavior:'smooth'})
   }, [messages])
   
@@ -94,28 +106,26 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
           justifyContent={'space-between'}
         >
           <Flex align={'center'}>
-            <Avatar ml={'2rem'} boxSize={10}>
+            <Avatar src={recipient?.avatarImage} ml={'2rem'} boxSize={10}>
             </Avatar>
-            <Text  ml={'1rem'}>{recipient?.username}</Text>
-          </Flex>
-          <Flex mr={'2rem'}>
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                aria-label="options"
-                icon={<HamburgerIcon />}
-                variant={'outline'}
-              />
-            </Menu>
+            <Text color={'white'} fontWeight={'semibold'}  ml={'1rem'}>{recipient?.username}</Text>
           </Flex>
         </Flex>
-    <Flex overflowY={'scroll'}  direction={'column'} backgroundColor={'gray.300'} h={'78%'}>
+    <Flex css={{
+    '&::-webkit-scrollbar': {
+      width: '6px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor:'#2e4265',
+      borderRadius: '24px',
+    },
+  }} overflowY={'auto'}  direction={'column'} backgroundColor={'gray.300'} h={'78%'}>
 
           {recipient && !isLoading ?
           messages?.map((message, index) => {
             return (
-              <Box key={index} ref={scrollRef}>
-             <Message  message={message}/>
+              <Box key={index} >
+             <Message scrollRef={scrollRef} thisUser={thisUser} recipient={recipient}  message={message}/>
              </Box>
             ) 
           })
@@ -145,9 +155,9 @@ const ChatBlock = ({recipient, thisUser, socket}) => {
       backgroundColor={'gray.400'}
       px={6}
       py={2}
+      _placeholder={{color: 'black'}}
     />
-    <AttachmentIcon />
-    <Button type="submit" backgroundColor={'blue.800'} mx={'1rem'}>
+    <Button color={'white'} type="submit" backgroundColor={'blue.800'} mx={'1rem'}>
       Send
     </Button>
   </Flex>
