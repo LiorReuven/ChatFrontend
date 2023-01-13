@@ -18,19 +18,15 @@ import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // import API from '../helpers/API'
 // import { loginrUrl } from '../helpers/API';
-import {useDispatch} from 'react-redux'
+import { useDispatch } from 'react-redux';
 import { login } from '../store/authThunk';
-import { unwrapResult } from '@reduxjs/toolkit'
-
+import { unwrapResult } from '@reduxjs/toolkit';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch()
-
+  const dispatch = useDispatch();
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
-
-
 
   return (
     <Formik
@@ -39,34 +35,38 @@ const LoginPage = () => {
         password: '',
       }}
       validationSchema={Yup.object({
-        email:Yup.string().email('Email must be valid').required('Please insert your email'),
-        password: Yup.string().min(6, 'Password must have 6 chars at minimum').max(16,'Password can contain up yo 16 chars').required('Please insert your password'),
+        email: Yup.string()
+          .email('Email must be valid')
+          .required('Please insert your email'),
+        password: Yup.string()
+          .min(6, 'Password must have 6 chars at minimum')
+          .max(16, 'Password can contain up yo 16 chars')
+          .required('Please insert your password'),
       })}
-      onSubmit={async(values, actions) => {
+      onSubmit={async (values, actions) => {
         try {
           // const response = await API.post(loginrUrl, {
           //   email: values.email,
           //   password: values.password
           // })
           // localStorage.setItem('chatUser', JSON.stringify(response.data))
-          dispatch(login({email:values.email, password:values.password}))
-          .then(unwrapResult)
-          .then((result) => {
-            if (result.token) {
-              actions.resetForm(); 
-              navigate('/chat')
-            } else {
-              actions.setFieldError(result.field, result.message)
-              actions.setSubmitting(false)
-            }
-          })
+          dispatch(login({ email: values.email, password: values.password }))
+            .then(unwrapResult)
+            .then((result) => {
+              if (result.token) {
+                actions.resetForm();
+                navigate('/chat');
+              } else {
+                actions.setFieldError(result.field, result.message);
+                actions.setSubmitting(false);
+              }
+            });
         } catch (error) {
-          console.log(error)
+          console.log(error);
           // const data = error.response.data
           // actions.setFieldError(data.field, data.message)
           // actions.setSubmitting(false)
         }
-        
       }}
     >
       {(formik) => (
@@ -108,7 +108,12 @@ const LoginPage = () => {
                   <Field as={Input} name={'password'} type="password" />
                   <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
                 </FormControl>
-                <Text>Dont have an account? <Link to={'/register'} as={RouterLink} color='blue.500'>register</Link></Text>
+                <Text>
+                  Dont have an account?{' '}
+                  <Link to={'/register'} as={RouterLink} color="blue.500">
+                    register
+                  </Link>
+                </Text>
                 <Button
                   type="submit"
                   isLoading={formik.isSubmitting}
