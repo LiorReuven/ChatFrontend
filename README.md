@@ -1,7 +1,7 @@
 # Full-Stack Chat App - Frontend Made with Reactjs
 
 This is the frontend of the chat app,
-for a live demo: [Live Demo]('sdadsada')
+for a live demo: [Live Demo]('https://chat-app-lr.netlify.app')
 
 ## Features
 
