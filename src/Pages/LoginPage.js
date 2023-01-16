@@ -12,7 +12,7 @@ import {
   Link,
   Text,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -27,6 +27,8 @@ const LoginPage = () => {
   const dispatch = useDispatch();
 
   const boxBg = useColorModeValue('whiteAlpha.800', 'gray.700');
+
+
 
   return (
     <Formik
@@ -50,7 +52,6 @@ const LoginPage = () => {
           //   password: values.password
           // })
           // localStorage.setItem('chatUser', JSON.stringify(response.data))
-          actions.setSubmitting(true);
           dispatch(login({ email: values.email, password: values.password }))
             .then(unwrapResult)
             .then((result) => {

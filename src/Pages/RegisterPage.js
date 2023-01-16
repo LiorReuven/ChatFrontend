@@ -54,6 +54,7 @@ const RegisterPage = () => {
         );
 
         const cloudData = await response.json();
+        console.log(cloudData)
         return cloudData;
       } else {
         return;
