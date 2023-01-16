@@ -50,6 +50,7 @@ const LoginPage = () => {
           //   password: values.password
           // })
           // localStorage.setItem('chatUser', JSON.stringify(response.data))
+          actions.setSubmitting(true);
           dispatch(login({ email: values.email, password: values.password }))
             .then(unwrapResult)
             .then((result) => {
