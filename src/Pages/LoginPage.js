@@ -12,7 +12,7 @@ import {
   Link,
   Text,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React  from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
