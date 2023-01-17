@@ -1,5 +1,5 @@
 # Full-Stack Chat App - Frontend Made with Reactjs
-Chat-app including users, live-private chat with "unread messages functionality and ability to set a profile image.
+Chat-app including users, live-private chat with "unread messages" functionality and ability to set a profile image.
 
 This is the front-end of the chat app,
 for a live demo: [Live Demo](https://chat-app-lr.netlify.app)
